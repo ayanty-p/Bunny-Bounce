@@ -72,6 +72,9 @@
 
       var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
+      // Unity側(WebGLプラグイン経由)からシーン読み込みのたびに問い合わせられる
+      window.isMobileDevice = isMobile;
+
       if (isMobile) {
         // Mobile device style: fill the whole browser client area with the game canvas:
 
@@ -100,10 +103,6 @@
           document.querySelector("#unity-fullscreen-button").onclick = () => {
             unityInstance.SetFullscreen(1);
           };
-
-          // Input.touchSupportedはPCでも誤ってtrueを返すことがあるため、
-          // ここで確実なUser-Agent判定の結果をUnity側に伝える
-          unityInstance.SendMessage('Canvas', 'SetIsMobile', isMobile ? 'true' : 'false');
 
         }).catch((message) => {
           alert(message);
