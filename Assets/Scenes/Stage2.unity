@@ -1582,7 +1582,7 @@ MonoBehaviour:
   hamburgerPrefab: {fileID: 4677713573307044931, guid: b5d758e34d72249f681374c7a73fbadc, type: 3}
   minX: -7
   maxX: 7
-  spawnY: 5
+  spawnY: 7
   spawnInterval: 1
 --- !u!4 &792134059
 Transform:
