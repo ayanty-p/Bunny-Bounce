@@ -19,7 +19,16 @@ public class ButterflySpawner : MonoBehaviour
     public float circleRadius = 1.6f;
     public float circleAngularSpeed = 2.2f;
 
+    [Header("Zigzag Movement")]
+    public bool useZigzagMovement = false;
+    public float zigzagAmplitude = 1.5f;
+    public float zigzagFrequency = 2f;
+
+    [Header("Movement Variety")]
+    public bool alternateMovementPatterns = true;
+
     private float timer;
+    private int spawnCount;
 
     private void Start()
     {
@@ -97,9 +106,31 @@ public class ButterflySpawner : MonoBehaviour
             Mathf.Max(Mathf.Abs(leftSpawnX), Mathf.Abs(rightSpawnX)) + circleRadius + 1f
         );
 
+        bool shouldMoveRight = !spawnFromRight;
+        bool shouldUseCircularMovement = useCircularMovement;
+        bool shouldUseZigzagMovement = useZigzagMovement;
+
+        if (alternateMovementPatterns)
+        {
+            int movementPattern = spawnCount % 3;
+            shouldUseCircularMovement = movementPattern == 0;
+            shouldUseZigzagMovement = movementPattern == 1;
+            spawnCount++;
+        }
+
+        if (shouldUseZigzagMovement && !shouldUseCircularMovement)
+        {
+            butterfly.InitializeZigzag(
+                shouldMoveRight,
+                zigzagAmplitude,
+                zigzagFrequency
+            );
+            return;
+        }
+
         butterfly.Initialize(
-            !spawnFromRight,
-            useCircularMovement,
+            shouldMoveRight,
+            shouldUseCircularMovement,
             circleRadius,
             circleAngularSpeed
         );
