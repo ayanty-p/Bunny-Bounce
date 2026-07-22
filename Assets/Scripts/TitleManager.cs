@@ -15,6 +15,19 @@ public class TitleManager : MonoBehaviour
 
     private bool isStarting;
 
+    private void Update()
+    {
+        if (isStarting)
+        {
+            return;
+        }
+
+        if (Input.GetMouseButtonDown(0) || Input.touchCount > 0)
+        {
+            PlayGame();
+        }
+    }
+
     public void PlayGame()
     {
         if (isStarting)

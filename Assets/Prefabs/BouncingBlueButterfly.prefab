@@ -165,15 +165,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 5843248339067239496}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f2d176c2e141a4836b1d2aef06de35d8, type: 3}
+  m_Script: {fileID: 11500000, guid: 6a49b9825b2534e42a11e16fd42bbb30, type: 3}
   m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::Butterfly
+  m_EditorClassIdentifier: Assembly-CSharp::BouncingButterfly
   moveSpeed: 3
-  useCircularMovement: 0
-  circleRadius: 1.6
-  circleAngularSpeed: 2.2
   destroyX: 10
-  bounceOffScreenEdges: 0
+  destroyMargin: 1.5
   bounceMinX: -7
   bounceMaxX: 7
   moveRight: 0

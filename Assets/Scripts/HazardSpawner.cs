@@ -22,23 +22,9 @@ public class HazardSpawner : MonoBehaviour
     public float butterflyMaxY = 3f;
     public float butterflyBounceMinX = -7f;
     public float butterflyBounceMaxX = 7f;
-    public bool butterflyUseCircularMovement = false;
-    public float butterflyCircleRadius = 1.6f;
-    public float butterflyCircleAngularSpeed = 2.2f;
-
-    [Header("Zigzag Butterflies (spawn extra butterflies that move up and down)")]
-    public bool spawnZigzagButterflies = false;
-    public GameObject zigzagButterflyPrefab;
-    public float zigzagButterflySpawnInterval = 4f;
-    public float zigzagButterflyMinY = -2f;
-    public float zigzagButterflyMaxY = 3f;
-    public float zigzagButterflyDestroyX = 10f;
-    public float zigzagAmplitude = 1.5f;
-    public float zigzagFrequency = 2f;
 
     private float timer;
     private float butterflyTimer;
-    private float zigzagButterflyTimer;
 
     private void Update()
     {
@@ -64,16 +50,6 @@ public class HazardSpawner : MonoBehaviour
             }
         }
 
-        if (spawnZigzagButterflies && zigzagButterflyPrefab != null)
-        {
-            zigzagButterflyTimer += Time.deltaTime;
-
-            if (zigzagButterflyTimer >= zigzagButterflySpawnInterval)
-            {
-                SpawnZigzagButterfly();
-                zigzagButterflyTimer = 0f;
-            }
-        }
     }
 
     private void SpawnHazard()
@@ -116,12 +92,12 @@ public class HazardSpawner : MonoBehaviour
             Quaternion.identity
         );
 
-        Butterfly butterfly = butterflyObject.GetComponent<Butterfly>();
+        BouncingButterfly butterfly = butterflyObject.GetComponent<BouncingButterfly>();
 
         if (butterfly == null)
         {
             Debug.LogError(
-                "Bouncing Butterfly Prefab is missing Butterfly.cs"
+                "Bouncing Butterfly Prefab is missing BouncingButterfly.cs"
             );
 
             Destroy(butterflyObject);
@@ -131,54 +107,8 @@ public class HazardSpawner : MonoBehaviour
         butterfly.InitializeBouncing(
             !spawnFromRight,
             butterflyBounceMinX,
-            butterflyBounceMaxX,
-            butterflyUseCircularMovement,
-            butterflyCircleRadius,
-            butterflyCircleAngularSpeed
+            butterflyBounceMaxX
         );
     }
 
-    private void SpawnZigzagButterfly()
-    {
-        float randomY = Random.Range(zigzagButterflyMinY, zigzagButterflyMaxY);
-
-        bool spawnFromRight = Random.value > 0.5f;
-
-        float spawnX = spawnFromRight ? zigzagButterflyDestroyX : -zigzagButterflyDestroyX;
-
-        Vector3 spawnPosition = new Vector3(
-            spawnX,
-            randomY,
-            0f
-        );
-
-        GameObject butterflyObject = Instantiate(
-            zigzagButterflyPrefab,
-            spawnPosition,
-            Quaternion.identity
-        );
-
-        Butterfly butterfly = butterflyObject.GetComponent<Butterfly>();
-
-        if (butterfly == null)
-        {
-            Debug.LogError(
-                "Zigzag Butterfly Prefab is missing Butterfly.cs"
-            );
-
-            Destroy(butterflyObject);
-            return;
-        }
-
-        butterfly.InitializeZigzag(
-            !spawnFromRight,
-            zigzagAmplitude,
-            zigzagFrequency
-        );
-
-        butterfly.destroyX = Mathf.Max(
-            butterfly.destroyX,
-            zigzagButterflyDestroyX
-        );
-    }
 }

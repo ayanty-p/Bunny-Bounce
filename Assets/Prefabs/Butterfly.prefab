@@ -169,8 +169,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Butterfly
   moveSpeed: 3
-  useCircularMovement: 0
-  circleRadius: 1.6
-  circleAngularSpeed: 2.2
   destroyX: 10
+  destroyMargin: 1.5
   moveRight: 0

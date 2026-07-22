@@ -2,8 +2,9 @@ using UnityEngine;
 
 public class ButterflySpawner : MonoBehaviour
 {
-    [Header("Prefab")]
+    [Header("Prefabs")]
     public GameObject butterflyPrefab;
+    public GameObject circularButterflyPrefab;
 
     [Header("Spawn Area")]
     public float leftSpawnX = -8f;
@@ -19,13 +20,14 @@ public class ButterflySpawner : MonoBehaviour
     public float circleRadius = 1.6f;
     public float circleAngularSpeed = 2.2f;
 
-    [Header("Zigzag Movement")]
-    public bool useZigzagMovement = false;
-    public float zigzagAmplitude = 1.5f;
-    public float zigzagFrequency = 2f;
-
     [Header("Movement Variety")]
-    public bool alternateMovementPatterns = true;
+    public bool alternateCircularMovement = false;
+
+    private enum MovementPattern
+    {
+        Straight,
+        Circular
+    }
 
     private float timer;
     private int spawnCount;
@@ -36,9 +38,7 @@ public class ButterflySpawner : MonoBehaviour
 
         if (butterflyPrefab == null)
         {
-            Debug.LogError(
-                "Butterfly Prefabが設定されていません"
-            );
+            Debug.LogError("Butterfly Prefab is not set");
         }
     }
 
@@ -61,78 +61,92 @@ public class ButterflySpawner : MonoBehaviour
     private void SpawnButterfly()
     {
         float randomY = Random.Range(minY, maxY);
-
         bool spawnFromRight = Random.value > 0.5f;
+        float spawnX = spawnFromRight ? rightSpawnX : leftSpawnX;
+        bool shouldMoveRight = !spawnFromRight;
 
-        float spawnX;
+        Vector3 spawnPosition = new Vector3(spawnX, randomY, 0f);
 
-        if (spawnFromRight)
+        switch (DeterminePattern())
         {
-            spawnX = rightSpawnX;
+            case MovementPattern.Circular:
+                SpawnCircular(spawnPosition, shouldMoveRight);
+                break;
+            default:
+                SpawnStraight(spawnPosition, shouldMoveRight);
+                break;
         }
-        else
+    }
+
+    private MovementPattern DeterminePattern()
+    {
+        if (alternateCircularMovement)
         {
-            spawnX = leftSpawnX;
+            int index = spawnCount % 2;
+            spawnCount++;
+
+            if (index == 0)
+            {
+                return MovementPattern.Circular;
+            }
+
+            return MovementPattern.Straight;
         }
 
-        Vector3 spawnPosition = new Vector3(
-            spawnX,
-            randomY,
-            0f
-        );
+        if (useCircularMovement)
+        {
+            return MovementPattern.Circular;
+        }
 
+        return MovementPattern.Straight;
+    }
+
+    private void SpawnStraight(Vector3 spawnPosition, bool shouldMoveRight)
+    {
         GameObject butterflyObject = Instantiate(
             butterflyPrefab,
             spawnPosition,
             Quaternion.identity
         );
 
-        Butterfly butterfly =
-            butterflyObject.GetComponent<Butterfly>();
+        Butterfly butterfly = butterflyObject.GetComponent<Butterfly>();
 
         if (butterfly == null)
         {
-            Debug.LogError(
-                "Butterfly PrefabにButterfly.csが付いていません"
-            );
-
+            Debug.LogError("Butterfly Prefab is missing Butterfly.cs");
             Destroy(butterflyObject);
             return;
         }
 
-        // 右から出たら左へ、左から出たら右へ進む
-        butterfly.destroyX = Mathf.Max(
-            butterfly.destroyX,
-            Mathf.Max(Mathf.Abs(leftSpawnX), Mathf.Abs(rightSpawnX)) + circleRadius + 1f
+        butterfly.destroyX = Mathf.Max(butterfly.destroyX, MaxSpawnDistance());
+        butterfly.Initialize(shouldMoveRight);
+    }
+
+    private void SpawnCircular(Vector3 spawnPosition, bool shouldMoveRight)
+    {
+        GameObject prefab = circularButterflyPrefab != null ? circularButterflyPrefab : butterflyPrefab;
+
+        GameObject butterflyObject = Instantiate(
+            prefab,
+            spawnPosition,
+            Quaternion.identity
         );
 
-        bool shouldMoveRight = !spawnFromRight;
-        bool shouldUseCircularMovement = useCircularMovement;
-        bool shouldUseZigzagMovement = useZigzagMovement;
+        CircularButterfly butterfly = butterflyObject.GetComponent<CircularButterfly>();
 
-        if (alternateMovementPatterns)
+        if (butterfly == null)
         {
-            int movementPattern = spawnCount % 3;
-            shouldUseCircularMovement = movementPattern == 0;
-            shouldUseZigzagMovement = movementPattern == 1;
-            spawnCount++;
-        }
-
-        if (shouldUseZigzagMovement && !shouldUseCircularMovement)
-        {
-            butterfly.InitializeZigzag(
-                shouldMoveRight,
-                zigzagAmplitude,
-                zigzagFrequency
-            );
+            Debug.LogError("Circular Butterfly Prefab is missing CircularButterfly.cs");
+            Destroy(butterflyObject);
             return;
         }
 
-        butterfly.Initialize(
-            shouldMoveRight,
-            shouldUseCircularMovement,
-            circleRadius,
-            circleAngularSpeed
-        );
+        butterfly.destroyX = Mathf.Max(butterfly.destroyX, MaxSpawnDistance() + circleRadius);
+        butterfly.InitializeCircular(shouldMoveRight, circleRadius, circleAngularSpeed);
+    }
+
+    private float MaxSpawnDistance()
+    {
+        return Mathf.Max(Mathf.Abs(leftSpawnX), Mathf.Abs(rightSpawnX)) + 1f;
     }
 }
