@@ -67,5 +67,5 @@
         "*.sln": "*.csproj",
         "*.slnx": "*.csproj"
     },
-    "dotnet.defaultSolution": "Bunny Bounce.slnx"
+    "dotnet.defaultSolution": "Bunny Bounce Web.slnx"
 }
